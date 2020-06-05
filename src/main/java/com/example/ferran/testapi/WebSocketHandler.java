@@ -18,23 +18,26 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         String msg = String.valueOf(message.getPayload());
         // Send back unique message depending on the id received from the client
         Message message1 = new Gson().fromJson(message.getPayload(), Message.class);
-
+        System.out.println(message.getPayload());
         if (!sessions.containsKey(message1.getSenderToken())) {
             System.out.println("New session from " + message1.getSenderToken());
+            Message registeredMessage = new Message("Registered", 2, message1.getSenderToken());
+            session.sendMessage(new TextMessage(new Gson().toJson(registeredMessage)));
             sessions.put(message1.getSenderToken(), session);
         }
 
         if(message1.getAction() == 0) {
             for (Integer key: sessions.keySet()) {
                 if (key != message1.getSenderToken()) { //No enviamos mensaje al remitente
-                    sessions.get(key).sendMessage(new TextMessage(message1.getMessage()));
+                    Message replyMessage = new Message(message1.getMessage(), 3, message1.getSenderToken());
+                    sessions.get(key).sendMessage(new TextMessage(new Gson().toJson(replyMessage)));
                 }
             }
         } else {
 
         }
 
-        System.out.println(msg);
+        //System.out.println(msg);
         //session.sendMessage(new TextMessage("pringui"));
     }
 }
