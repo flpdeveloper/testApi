@@ -1,6 +1,7 @@
 package com.example.ferran.testapi;
 
 import com.google.gson.Gson;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
@@ -33,11 +34,31 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                     sessions.get(key).sendMessage(new TextMessage(new Gson().toJson(replyMessage)));
                 }
             }
-        } else {
-
+        } else if (message1.getAction() == 4){
+            int token = message1.getSenderToken();
+            sessions.remove(token);
+            session.close();
+            System.out.println("Session with token " + token + " closed by client request");
         }
 
         //System.out.println(msg);
         //session.sendMessage(new TextMessage("pringui"));
+    }
+
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+        System.out.println("ERROR " + exception);
+    }
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        super.afterConnectionEstablished(session);
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        super.afterConnectionClosed(session, status);
+        System.out.println("Connection closed");
+
     }
 }
